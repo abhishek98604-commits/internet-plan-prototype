@@ -6,6 +6,7 @@
 <title>Home Internet Plan Selection · Prototype</title>
 <meta name="description" content="Clickable mobile-first prototype of a home internet plan selection flow. Portfolio case study by Abhishek Bora.">
 <meta name="theme-color" content="#eb1d21">
+<script>if(/[?&]embed/.test(location.search))document.documentElement.classList.add('embed')</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%23eb1d21%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%227%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%224%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -133,9 +134,18 @@ a{color:inherit}
 .card.open .chev{transform:rotate(180deg)}
 .gift-ic{width:20px;height:20px;flex:none;color:var(--red-icon)}
 
-.details{display:none;flex-direction:column;gap:12px}
-.card.open .details{display:flex}
-.card.open .summary-row{display:none}
+.details,.tvdet{display:flex;flex-direction:column;gap:12px}
+/* Smooth expand / collapse */
+.clp{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .38s cubic-bezier(.2,.7,.2,1),opacity .3s ease;margin-top:-12px}
+.clp>.in{overflow:hidden;min-height:0}
+.clp>.in>*{margin-top:12px}
+.card.open .clp{grid-template-rows:1fr;opacity:1}
+.clp.rev{grid-template-rows:1fr;opacity:1}
+.card.open .clp.rev{grid-template-rows:0fr;opacity:0}
+/* Embedded in the phone-frame showcase page */
+.embed body{background:#fff;padding:0}
+.embed .proto-label,.embed .desk-note{display:none!important}
+.embed .app{max-width:none;border:0;border-radius:0;min-height:100vh}
 .feats{display:flex;flex-direction:column;gap:16px}
 .feat{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;line-height:18px}
 .feat.top{align-items:flex-start}
@@ -529,14 +539,14 @@ function renderPlans(){
             <div class="now"><b>${money(planPrice(p))}</b><i>/mo</i></div>
           </div>
         </button>
-        <div class="summary-row js-toggle" role="button" tabindex="-1">
+        <div class="clp rev"><div class="in"><div class="summary-row js-toggle" role="button" tabindex="-1">
           <div class="bullets">
             <div class="bl"><span class="ms red" aria-hidden="true">handshake</span>${p.years}-year price guarantee*</div>
             <div class="bl">${giftSvg}2 special gifts</div>
           </div>
           <span class="ms chev" aria-hidden="true">keyboard_arrow_down</span>
-        </div>
-        <div class="details" id="d-${p.id}">
+        </div></div></div>
+        <div class="clp"><div class="in"><div class="details" id="d-${p.id}">
           <div class="feats">
             <div class="feat"><span class="ms red" aria-hidden="true">handshake</span>${p.years}-year price guarantee*</div>
             <div class="feat"><span class="ms red" aria-hidden="true">avg_pace</span><div>Download and upload speeds of <br>up to ${p.speed}</div></div>
@@ -557,7 +567,7 @@ function renderPlans(){
             <button class="btn dark js-add" data-add="${p.id}">${inCart?'Continue':'Add to cart'}</button>
             <button class="collapse js-toggle" aria-label="Collapse ${p.name}"><span class="ms" aria-hidden="true">keyboard_arrow_down</span></button>
           </div>
-        </div>
+        </div></div></div>
       </div>
     </article>`;
   }).join('');
@@ -580,7 +590,7 @@ function renderTV(){
   $('#tv-list').innerHTML = TV.map(t=>{
     const open = S.tvOpen===t.id, on = S.tv===t.id;
     const feats = t.feats.map(f=>`<div class="feat ${f[2]?'top':''}"><span class="ms red" aria-hidden="true">${f[0]}</span><div>${f[1]}${f[2]?`<small>${f[2]}</small>`:''}</div></div>`).join('');
-    return `<article class="card ${open?'open':''}"><div class="card-body">
+    return `<article class="card ${open?'open':''}" data-tvcard="${t.id}"><div class="card-body">
       <button class="card-head tall js-tvtoggle" data-tv="${t.id}" aria-expanded="${open}">
         <h2 class="pname two">${t.name}</h2>
         <div class="price-col" style="gap:1px">
@@ -589,7 +599,8 @@ function renderTV(){
           <span class="fees">Plus taxes and fees</span>
         </div>
       </button>
-      ${open ? `
+      <div class="clp rev"><div class="in"><div class="tv-sum js-tvtoggle" data-tv="${t.id}" role="button" tabindex="-1">${feats}<span class="ms chev" aria-hidden="true">keyboard_arrow_down</span></div></div></div>
+      <div class="clp"><div class="in"><div class="tvdet">
         <div class="feats">${feats}</div>
         ${t.gift ? `<div class="hr"></div>
         <div class="gifts-title">${giftSvg}1 special gift on us</div>
@@ -597,8 +608,8 @@ function renderTV(){
         <div class="cta-row">
           <button class="btn line js-tvadd ${on?'added':''}" data-tv="${t.id}" aria-pressed="${on}">${on?'<span class="ms" aria-hidden="true">check</span>Added':'Add to cart'}</button>
           <button class="collapse js-tvtoggle" data-tv="${t.id}" aria-label="Collapse ${t.name}"><span class="ms" aria-hidden="true">keyboard_arrow_down</span></button>
-        </div>` : `
-        <div class="tv-sum js-tvtoggle" data-tv="${t.id}" role="button" tabindex="-1">${feats}<span class="ms chev" aria-hidden="true">keyboard_arrow_down</span></div>`}
+        </div>
+      </div></div></div>
     </div></article>`;
   }).join('');
 }
@@ -708,8 +719,9 @@ document.addEventListener('click', e=>{
   if(el.classList.contains('js-toggle')){
     const id = el.closest('[data-plan]').dataset.plan;
     const wasOpen = S.open===id;
-    S.open = wasOpen ? null : id; renderPlans();
-    if(!wasOpen){ const c=$(`[data-plan="${id}"]`); c.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+    S.open = wasOpen ? null : id;
+    $$('#plan-list .card').forEach(c=>{ const on=c.dataset.plan===S.open; c.classList.toggle('open',on); c.querySelector('.card-head').setAttribute('aria-expanded',on); });
+    if(!wasOpen){ const c=$(`[data-plan="${id}"]`); setTimeout(()=>c.scrollIntoView({block:'nearest',behavior:'smooth'}),400); }
     return;
   }
   if(el.dataset.gift){ S.gift=el.dataset.gift; $$('.opt').forEach(o=>o.setAttribute('aria-checked', o.dataset.gift===S.gift)); return; }
@@ -717,7 +729,7 @@ document.addEventListener('click', e=>{
 
   if(el.classList.contains('js-perk')){ const id=el.dataset.perk; S.perks.has(id)?S.perks.delete(id):S.perks.add(id); renderPerks(); renderHub(); renderTrays(); return; }
 
-  if(el.classList.contains('js-tvtoggle')){ const id=el.dataset.tv; S.tvOpen = S.tvOpen===id?null:id; renderTV(); return; }
+  if(el.classList.contains('js-tvtoggle')){ const id=el.dataset.tv; S.tvOpen = S.tvOpen===id?null:id; $$('#tv-list .card').forEach(c=>{ const on=c.dataset.tvcard===S.tvOpen; c.classList.toggle('open',on); c.querySelector('.card-head').setAttribute('aria-expanded',on); }); return; }
   if(el.classList.contains('js-tvadd')){ const id=el.dataset.tv; S.tv = S.tv===id?null:id; renderTV(); renderHub(); renderTrays(); if(S.tv) toast('Live TV added to your order'); return; }
 
   if(el.classList.contains('js-phone')){ S.phone=!S.phone; renderAll(); if(S.phone) go('services'); return; }
