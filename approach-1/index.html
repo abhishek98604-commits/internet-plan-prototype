@@ -25,14 +25,14 @@ button:focus-visible{outline:2px solid #1a73e8;outline-offset:2px}
 .gift-ic{width:20px;height:20px;flex:none;color:var(--red-i)}
 
 /* ---------- Page ---------- */
-.stage{padding:40px 24px 28px;display:flex;flex-direction:column;align-items:center}
+.stage{padding:24px 16px 16px;display:flex;flex-direction:column;align-items:center}
 .row{display:flex;gap:40px;justify-content:center;align-items:flex-start;transform-origin:top center}
 .col{display:flex;flex-direction:column;align-items:center;gap:18px}
 .cap{text-align:center}
 .cap b{display:block;font-size:15px;font-weight:700;letter-spacing:-.01em}
 .cap span{display:block;font-size:13px;color:var(--ink5);margin-top:3px}
 .note{font-size:12px;color:#9a9ea6;margin-top:22px;text-align:center}
-@media (max-width:760px){
+@media (max-width:520px){
   .stage{padding:24px 0 20px}
   .row{justify-content:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;width:100%;padding:0 calc(50vw - var(--phone-w)/2) 8px;gap:20px;transform:none!important;scrollbar-width:none}
   .row::-webkit-scrollbar{display:none}
@@ -541,11 +541,11 @@ document.addEventListener('click', e=>{
 /* Fit the three phones to the available width on desktop */
 function fit(){
   const row = document.getElementById('row');
-  if(innerWidth <= 760){ row.style.transform=''; row.style.marginBottom=''; return; }
-  const need = row.scrollWidth, avail = innerWidth - 32;
-  const k = Math.min(1, avail/need);
+  if(innerWidth <= 520){ row.style.transform=''; row.style.marginBottom=''; return; }
+  const W = row.scrollWidth, H = row.offsetHeight;
+  const k = Math.min(1, (innerWidth - 32)/W, (innerHeight - 96)/H);
   row.style.transform = k<1 ? `scale(${k})` : '';
-  row.style.marginBottom = k<1 ? `${-(row.offsetHeight*(1-k))}px` : '';
+  row.style.marginBottom = k<1 ? `${-(H*(1-k))}px` : '';
 }
 [1,2,3].forEach(v=>render(v,false));
 addEventListener('resize', fit); fit();
