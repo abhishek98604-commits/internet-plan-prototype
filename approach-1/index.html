@@ -543,13 +543,15 @@ function fit(){
   const row = document.getElementById('row');
   if(innerWidth <= 520){ row.style.transform=''; row.style.marginBottom=''; return; }
   const W = row.scrollWidth, H = row.offsetHeight;
-  const k = Math.min(1, (innerWidth - 32)/W, (innerHeight - 96)/H);
+  const kh = innerHeight > 360 ? (innerHeight - 96)/H : 1;
+  const k = Math.max(.35, Math.min(1, (innerWidth - 32)/W, kh));
   row.style.transform = k<1 ? `scale(${k})` : '';
   row.style.marginBottom = k<1 ? `${-(H*(1-k))}px` : '';
 }
 [1,2,3].forEach(v=>render(v,false));
 addEventListener('resize', fit); fit();
 document.fonts && document.fonts.ready.then(fit);
+addEventListener('load', fit); setTimeout(fit, 600);
 </script>
 </body>
 </html>
